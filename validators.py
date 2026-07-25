@@ -33,4 +33,39 @@ def get_int(message, minimum=None):
             continue
         return answer
 
+def get_blood_type(message):
+    # We keep asking them to type a valid bloodtype like in list blood_types above
+    while True:
+        answer = input(message).strip().upper()
+        if answer in blood_types:
+            return answer
+        else:
+            print("You typed a wrong blood type. Valid types include: A+, A-, B+, B-, AB+, AB-, O+, O- ")
+            
 
+def get_date(message, allow_blank=False):
+    # Here we check that the user type a prper valid date in  YYYY-MM-DD format.
+    # Or the user presses Enter and allow_blank=true
+
+    while True:
+        user_input = input(message).strip()
+        if user_input == "" and allow_blank:
+            return None
+        try:
+            return datetime.strptime(user_input, "%Y-%m-%d").date().isoformat()
+        except ValueError:
+            print("Invalid date. use the format YYYY-MM-DD, like 2024-07-12") 
+
+
+def get_yes_no(message):
+    # we keep asking the user to answer yes or no. and we return true for yes
+    yes_lst = ["y", "yes"]
+    no_lst = ["n", "no"]
+
+    while True:
+        answer = input(message + " (y/n): ").strip().lower()
+        if answer in yes_lst:
+            return True
+        if answer in no_lst:
+            return False
+        print("Please answer y or n.")

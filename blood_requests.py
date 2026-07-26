@@ -238,3 +238,6 @@ def view_requests():
                 status,
             )
         )
+
+if __name__ == "__main__":
+    new_request()

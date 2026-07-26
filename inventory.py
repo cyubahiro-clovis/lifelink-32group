@@ -161,7 +161,7 @@ class InventoryManager(BaseManager):
                 print("They stay in the database for the inventory report, "
                       "marked as 'expired'.")
             else:
-                print("No expired units found - the stock is clean.")
+                print("No expired units found.")
         except sqlite3.Error as error:
             conn.rollback()
             print("Could not update the stock:", error)

@@ -15,13 +15,13 @@ from datetime import date, timedelta
 
 from database import BaseManager
 from validators import (
-    get_blood_type,
-    get_date,
-    get_int,
-    get_yes_no,
-    get_name,
-    get_phone,
-    get_nonempty
+        get_nonempty,
+        get_blood_type,
+        get_date,
+        get_int,
+        get_yes_no,
+        get_name,
+        get_phone,
 )
 
 

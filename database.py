@@ -82,7 +82,7 @@ class Database:
                 FOREIGN KEY (unit_id) REFERENCES blood_units (unit_id)
             )
         """)
-.
+
         cur.execute("""
             CREATE TABLE IF NOT EXISTS staff (
                 staff_id INTEGER PRIMARY KEY AUTOINCREMENT,

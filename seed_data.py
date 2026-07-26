@@ -1,115 +1,99 @@
 #!/usr/bin/python3
-"""Populate the LifeLink database with sample data for demos/testing."""
-import random
+"""
+seed_data.py - Fills the database with sample data for testing and the demo.
+Owner: Nziza.
+
+Run it once on a fresh database:   python3 seed_data.py
+To start over:  delete lifelink.db, then run this again.
+
+Demo moments built in on purpose:
+  - one unit that expires in 2 days  -> the expiry warning fires live
+  - one unit that already expired    -> "Remove expired units" shows a result
+  - O- units (universal donor)       -> compatibility matching looks impressive
+  - donors who last gave 90+ days ago-> the eligible donor list is not empty
+All data is invented for this student project. No real patient or donor data.
+"""
+
 from datetime import date, timedelta
 
-from db import get_connection, init_db
+from database import Database
 
-BLOOD_TYPES = ["O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"]
-
-DONOR_SAMPLES = [
-    ("Aline Uwase", "O+", "0788111222", "aline.u@example.com"),
-    ("Eric Niyonzima", "A-", "0788222333", "eric.n@example.com"),
-    ("Grace Mukamana", "B+", "0788333444", "grace.m@example.com"),
-    ("Jean Bosco", "AB+", "0788444555", "jean.b@example.com"),
-    ("Diane Ingabire", "O-", "0788555666", "diane.i@example.com"),
-    ("Patrick Habimana", "A+", "0788666777", "patrick.h@example.com"),
-    ("Solange Umutoni", "B-", "0788777888", "solange.u@example.com"),
-    ("Emmanuel Rugamba", "AB-", "0788888999", "emmanuel.r@example.com"),
-]
-
-HOSPITALS = [
-    "King Faisal Hospital",
-    "CHUK",
-    "Rwanda Military Hospital",
-    "Kibagabaga Hospital",
-    "Nyamata District Hospital",
-]
-
-REQUESTERS = ["Dr. Kamanzi", "Dr. Uwimana", "Dr. Mugisha", "Dr. Keza"]
-STATUSES = ["pending", "approved", "rejected"]
 SHELF_LIFE_DAYS = 42
 
 
-def seed_donors(conn):
-    """Insert sample donors."""
+def add_donor(cur, name, blood_type, contact, days_since_last_donation=None):
+    last = None
+    if days_since_last_donation is not None:
+        last = (date.today() - timedelta(days=days_since_last_donation)).isoformat()
+    cur.execute(
+        "INSERT INTO donors (name, blood_type, contact, last_donation_date) "
+        "VALUES (?, ?, ?, ?)",
+        (name, blood_type, contact, last),
+    )
+    return cur.lastrowid
+
+
+def add_unit(cur, blood_type, collected_days_ago, donor_id=None):
+    collection = date.today() - timedelta(days=collected_days_ago)
+    expiry = collection + timedelta(days=SHELF_LIFE_DAYS)
+    cur.execute(
+        "INSERT INTO blood_units (blood_type, quantity_ml, collection_date, "
+        "expiry_date, status, donor_id) VALUES (?, 450, ?, ?, 'available', ?)",
+        (blood_type, collection.isoformat(), expiry.isoformat(), donor_id),
+    )
+
+
+def main():
+    db = Database()
+    db.create_tables()
+    conn = db.get_connection()
     cur = conn.cursor()
-    for name, blood_type, phone, email in DONOR_SAMPLES:
-        last_donation = date.today() - timedelta(days=random.randint(10, 200))
-        cur.execute(
-            "INSERT INTO donors (full_name, blood_type, phone, email, "
-            "last_donation_date, is_eligible) VALUES (?, ?, ?, ?, ?, ?)",
-            (name, blood_type, phone, email, last_donation.isoformat(), 1),
-        )
+
+    cur.execute("SELECT COUNT(*) FROM donors")
+    if cur.fetchone()[0] > 0:
+        print("The database already contains data - nothing was added.")
+        print("To reload sample data: delete lifelink.db, then run this again.")
+        conn.close()
+        return
+
+    # ---------------- donors ----------------
+    d_aline = add_donor(cur, "Aline Uwase", "O-", "0788111222", 120)
+    d_eric = add_donor(cur, "Eric Mugisha", "A+", "0788333444", 30)
+    d_grace = add_donor(cur, "Grace Ingabire", "B+", "0788555666", 95)
+    add_donor(cur, "Jean Bosco Habimana", "AB+", "0788777888", None)
+    d_divine = add_donor(cur, "Divine Umutoni", "O+", "0788999000", 200)
+    add_donor(cur, "Patrick Nkurunziza", "A-", "0788121314", 10)
+    d_sandrine = add_donor(cur, "Sandrine Keza", "B-", "0788151617", 180)
+    add_donor(cur, "Kevin Iradukunda", "AB-", "0788181920", 100)
+
+    # ---------------- blood units ----------------
+    add_unit(cur, "O-", 5, d_aline)      # universal donor unit
+    add_unit(cur, "O-", 20)
+    add_unit(cur, "A+", 10, d_eric)
+    add_unit(cur, "A+", 25)
+    add_unit(cur, "A+", 40)              # expires in 2 days -> live warning
+    add_unit(cur, "B+", 3, d_grace)
+    add_unit(cur, "B+", 15)
+    add_unit(cur, "O+", 8, d_divine)
+    add_unit(cur, "O+", 18)
+    add_unit(cur, "O+", 30)
+    add_unit(cur, "AB+", 12)
+    add_unit(cur, "B-", 22, d_sandrine)
+    add_unit(cur, "A-", 45)              # already expired -> cleanup demo
+
     conn.commit()
 
-
-def seed_blood_units(conn, count=20):
-    """Insert sample blood units, some already expired for testing."""
-    cur = conn.cursor()
-    for _ in range(count):
-        blood_type = random.choice(BLOOD_TYPES)
-        collected = date.today() - timedelta(days=random.randint(0, 60))
-        expiry = collected + timedelta(days=SHELF_LIFE_DAYS)
-        status = "expired" if expiry < date.today() else "available"
-        cur.execute(
-            "INSERT INTO blood_units (blood_type, quantity_ml, "
-            "collection_date, expiry_date, status) "
-            "VALUES (?, ?, ?, ?, ?)",
-            (blood_type, 450, collected.isoformat(),
-             expiry.isoformat(), status),
-        )
-    conn.commit()
-
-
-def seed_donations(conn):
-    """Link each donor to a donated unit."""
-    cur = conn.cursor()
-    donor_ids = [r[0] for r in cur.execute("SELECT donor_id FROM donors")]
-    unit_ids = [r[0] for r in cur.execute("SELECT unit_id FROM blood_units")]
-    for donor_id in donor_ids:
-        unit_id = random.choice(unit_ids)
-        donation_date = date.today() - timedelta(days=random.randint(0, 90))
-        cur.execute(
-            "INSERT INTO donations (donor_id, unit_id, donation_date) "
-            "VALUES (?, ?, ?)",
-            (donor_id, unit_id, donation_date.isoformat()),
-        )
-    conn.commit()
-
-
-def seed_requests(conn, count=10):
-    """Insert sample hospital blood requests."""
-    cur = conn.cursor()
-    for _ in range(count):
-        req_date = date.today() - timedelta(days=random.randint(0, 30))
-        cur.execute(
-            "INSERT INTO requests (requester_name, hospital, blood_type, "
-            "quantity_ml, status, request_date) "
-            "VALUES (?, ?, ?, ?, ?, ?)",
-            (
-                random.choice(REQUESTERS),
-                random.choice(HOSPITALS),
-                random.choice(BLOOD_TYPES),
-                random.choice([450, 900, 1350]),
-                random.choice(STATUSES),
-                req_date.isoformat(),
-            ),
-        )
-    conn.commit()
-
-
-def run_seed():
-    """Initialize the database and load all sample data."""
-    init_db()
-    conn = get_connection()
-    seed_donors(conn)
-    seed_blood_units(conn)
-    seed_donations(conn)
-    seed_requests(conn)
+    cur.execute("SELECT COUNT(*) FROM donors")
+    donors = cur.fetchone()[0]
+    cur.execute("SELECT COUNT(*) FROM blood_units")
+    units = cur.fetchone()[0]
     conn.close()
-    print("Seed data inserted into {}".format("lifelink.db"))
+
+    print("Sample data inserted: {} donors and {} blood units.".format(
+        donors, units))
+    print("Now run:  python3 main.py   (login: admin / blood2026)")
 
 
 if __name__ == "__main__":
-    run_seed()
+    main()
+

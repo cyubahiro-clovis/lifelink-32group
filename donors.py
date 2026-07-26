@@ -5,6 +5,9 @@ Contributor: Vladimir.
 
 Handles registering donors, viewing them, searching, updating, deleting,
 and finding the donors who are eligible to donate again.
+
+Uses the team's validators: get_name() makes sure donor names contain only
+letters, and get_phone() makes sure contacts are real phone numbers.
 """
 
 import sqlite3
@@ -45,9 +48,9 @@ class DonorManager(BaseManager):
     def register_donor(self):
         """Register a new donor in the database."""
         print("\n-- Register New Donor --")
-        name = get_nonempty("Donor name: ")
+        name = get_name("Donor name: ")
         blood_type = get_blood_type("Blood type (e.g. A+, O-): ")
-        contact = get_nonempty("Contact (phone number): ")
+        contact = get_phone("Contact (phone number): ")
         last_donation = get_date(
             "Last donation date (YYYY-MM-DD), or press Enter if none: ",
             allow_blank=True,
@@ -138,7 +141,7 @@ class DonorManager(BaseManager):
 
         try:
             if field == "1":
-                new_contact = get_nonempty("New contact: ")
+                new_contact = get_phone("New contact: ")
                 cur.execute(
                     "UPDATE donors SET contact = ? WHERE donor_id = ?",
                     (new_contact, donor_id),
@@ -146,7 +149,7 @@ class DonorManager(BaseManager):
                 conn.commit()
                 print("Contact for {} updated successfully.".format(name))
             elif field == "2":
-                new_name = get_nonempty("New name: ")
+                new_name = get_name("New name: ")
                 cur.execute(
                     "UPDATE donors SET name = ? WHERE donor_id = ?",
                     (new_name, donor_id),
@@ -237,4 +240,5 @@ class DonorManager(BaseManager):
             return
         print("These donors can be called when stock is low:")
         self._print_table(rows)
+
 

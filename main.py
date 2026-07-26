@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 """
-LifeLink:This a Blood Bank Inventory and Donor Management System
-Group 32: ALU BSE Year 1, Trimester 2, Peer Learning Project 2
+LifeLink: This is Blood Bank Inventory and Donor Management System
 
 This is the only file you run:   python3 main.py
 
@@ -36,29 +35,7 @@ class LifeLinkApp:
         self.alerts = AlertEngine(self.db)
         self.user = None
 
-<<<<<<< Updated upstream
     # Login
-=======
-def reports_menu():
-    while True:
-        print("\n--- REPORTS ---")
-        print("1. Inventory report")
-        print("2. Donation history")
-        print("3. Requeest log")
-        print("4. Back to main menu")
-        choice = input("Enter your choice (1-4): ").strip()
-        if choice == "1":
-            reports.inventory_report()
-        elif choice == "2":
-            reports.donations_history()
-        elif choice == "3":
-            reports.request_log()
-        elif choice == "4":
-            break
-        else:
-            print("Invalid choice. Please enter a number from 1 to 4.")
->>>>>>> Stashed changes
-
     def login(self):
         """Ask for staff credentials. Returns True when the login succeeds."""
         print("\n-- STAFF LOGIN --")
@@ -91,7 +68,6 @@ def reports_menu():
         return False
 
     # Sub-menus
-  
     def donor_menu(self):
         while True:
             print("\n--- DONOR MANAGEMENT ---")
@@ -187,7 +163,6 @@ def reports_menu():
             pause()
 
     # Main loop
-
     def run(self):
         print("=" * 52)
         print("          LIFELINK BLOOD BANK SYSTEM")
@@ -236,3 +211,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

@@ -1,26 +1,36 @@
 #!/usr/bin/python3
 """
-This database.py is a database connection and table creation for LifeLink.
-Everyone imports this and should be changed after telling the team.
+database.py: Database layer for LifeLink.
 
-Tables match our PLP-1 architecture diagram:
-    donors | Blood_units (blood_inventory) | blood_requests
-    """
+Holds two classes:
+  Database: This owns the SQLite file, gives connections, creates the tables.
+  BaseManager: This parent class that every feature manager inherits from,
+                 so they all share the same database object.
 
-    import sqlite3
+The tables match the architecture diagram in our PLP-1 document:
+donors | blood_units | blood_requests | issued_units (distributions) | staff
+"""
 
-    DB_NAME = "lifelink.db"
+import os
+import sqlite3
 
-    def get_connectio():
-        """Return a connection to the LifeLink database with foreign keys ON."""
-        conn = sqlite3.connect(DB_NAME)
+
+class Database:
+    """Owns the SQLite database file and the schema."""
+
+    def __init__(self, db_name="lifelink.db"):
+        here = os.path.dirname(os.path.abspath(__file__))
+        self.db_path = os.path.join(here, db_name)
+
+    def get_connection(self):
+        """Return a connection with foreign keys switched on."""
+        conn = sqlite3.connect(self.db_path)
         conn.execute("PRAGMA foreign_keys = ON")
         return conn
 
-
-    def create_tables():
-        """Create all tables if they do not exist yet. Safe to call at every startup."""
-        conn = get _connection()
+    def create_tables(self):
+        """Create every table if it does not exist. Safe to run at each startup."""
+        conn = self.get_connection()
         cur = conn.cursor()
 
         cur.execute("""
@@ -28,22 +38,24 @@ Tables match our PLP-1 architecture diagram:
                 donor_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
                 blood_type TEXT NOT NULL,
-                contact TEX,
+                contact TEXT,
                 last_donation_date TEXT
             )
         """)
+
         cur.execute("""
-            CREATE TABLE IF NOT EXISTS blood_requests (
+            CREATE TABLE IF NOT EXISTS blood_units (
                 unit_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 blood_type TEXT NOT NULL,
+                quantity_ml INTEGER NOT NULL DEFAULT 450,
                 collection_date TEXT NOT NULL,
-                expiry_date TEXT NULL,
+                expiry_date TEXT NOT NULL,
                 status TEXT NOT NULL DEFAULT 'available',
                 donor_id INTEGER,
                 FOREIGN KEY (donor_id) REFERENCES donors (donor_id)
             )
         """)
-        
+
         cur.execute("""
             CREATE TABLE IF NOT EXISTS blood_requests (
                 request_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -54,5 +66,48 @@ Tables match our PLP-1 architecture diagram:
                 status TEXT NOT NULL DEFAULT 'pending'
             )
         """)
+
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS issued_units (
+                issue_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                request_id INTEGER NOT NULL,
+                unit_id INTEGER NOT NULL,
+                issue_date TEXT NOT NULL,
+                FOREIGN KEY (request_id) REFERENCES blood_requests (request_id),
+                FOREIGN KEY (unit_id) REFERENCES blood_units (unit_id)
+            )
+        """)
+
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS staff (
+                staff_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT NOT NULL UNIQUE,
+                password TEXT NOT NULL
+            )
+        """)
+
+        cur.execute("SELECT COUNT(*) FROM staff")
+        if cur.fetchone()[0] == 0:
+            cur.execute(
+                "INSERT INTO staff (username, password) VALUES (?, ?)",
+                ("admin", "blood2026"),
+            )
+
         conn.commit()
         conn.close()
+
+
+class BaseManager:
+    """Parent class for every feature manager (donors, inventory, etc.)."""
+
+    def __init__(self, db):
+        self.db = db
+
+    def connect(self):
+        """Shortcut so child classes can simply call self.connect()."""
+        return self.db.get_connection()
+
+
+if __name__ == "__main__":
+    Database().create_tables()
+    print("Database ready.")

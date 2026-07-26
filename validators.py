@@ -88,3 +88,16 @@ def get_name(message):
         if answer and answer.replace(" ", "").isalpha():
             return answer
         print("names should contain only letters")
+
+
+def get_choice(message, valid_options):
+    # keep asking until the user picks a valid menu option
+    while True:
+        answer = input(message).strip()
+        if answer in valid_options:
+            return answer
+        print("Invalid choice. Please enter one of: " + ", ".join(valid_options))
+
+
+def pause():
+    input("\nPress Enter to continue...")

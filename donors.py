@@ -12,11 +12,12 @@ from datetime import date, timedelta
 
 import database
 from validators import (
-    get_nonempty,
     get_blood_type,
     get_date,
     get_int,
     get_yes_no,
+    get_name,
+    get_phone,
 )
 
 
@@ -24,9 +25,9 @@ def register_donor():
     """Register a new donor in the database."""
     print("\n-- Register New Donor --")
 
-    name = get_nonempty("Donor name: ")
+    name = get_name("Donor name: ")
     blood_type = get_blood_type("Blood type (e.g. A+, O-): ")
-    contact = get_nonempty("Contact (phone number): ")
+    contact = get_phone("Contact (phone number): ")
     last_donation = get_date(
         "Last donation date (YYYY-MM-DD), or press Enter if none: ",
         allow_blank=True,

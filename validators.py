@@ -69,3 +69,22 @@ def get_yes_no(message):
         if answer in no_lst:
             return False
         print("Please answer y or n.")
+
+
+def get_phone(message):
+    #Making sure phone numbers are digits instead of letters
+    while True:
+        answer = input(message).strip()
+        phone_number = answer.replace("+", "")
+        if phone_number.isdigit() and 10 <= len(phone_number) <= 12:
+            return answer
+        print("Enter a valid phone number like 0789078235 or +250789078235")
+
+
+def get_name(message):
+    # making sure names are letters
+    while True:
+        answer = input(message).strip()
+        if answer and answer.replace(" ", "").isalpha():
+            return answer
+        print("names should contain only letters")

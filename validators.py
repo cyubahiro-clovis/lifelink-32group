@@ -4,11 +4,8 @@ This py file contains functions that help us detect bad inputs that would
 crash the program. These inputs like letters where the program expects numbers
 or wrong blood types like C+ and wrong date
 """
-
 from datetime import datetime
-
 blood_types = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"]
-
 def get_nonempty(message):
     # keep asking the user to type something instead of leaving it empty
     while True:
@@ -17,10 +14,8 @@ def get_nonempty(message):
             return answer
         else:
             print("Please type something. You left it blank")
-
-
-def get_int(message, minimum=None):
-    # this helps us to detect that user isn't typing a whole number like text or 4.5
+def get_int(message, minimum=None, maximum=None):
+    # this helps us to detect that user isnt typing a whole number like text or 4.5
     while True:
         user_input = input(message).strip()
         try:
@@ -31,8 +26,10 @@ def get_int(message, minimum=None):
         if minimum is not None and answer < minimum:
             print(f"Please enter a number that is atleast {minimum}")
             continue
+        if maximum is not None and answer > maximum:
+            print(f"Please enter a number that is at most {maximum}")
+            continue
         return answer
-
 def get_blood_type(message):
     # We keep asking them to type a valid bloodtype like in list blood_types above
     while True:
@@ -41,12 +38,9 @@ def get_blood_type(message):
             return answer
         else:
             print("You typed a wrong blood type. Valid types include: A+, A-, B+, B-, AB+, AB-, O+, O- ")
-            
-
 def get_date(message, allow_blank=False):
     # Here we check that the user type a prper valid date in  YYYY-MM-DD format.
     # Or the user presses Enter and allow_blank=true
-
     while True:
         user_input = input(message).strip()
         if user_input == "" and allow_blank:
@@ -54,14 +48,11 @@ def get_date(message, allow_blank=False):
         try:
             return datetime.strptime(user_input, "%Y-%m-%d").date().isoformat()
         except ValueError:
-            print("Invalid date. use the format YYYY-MM-DD, like 2024-07-12") 
-
-
+            print("Invalid date. use the format YYYY-MM-DD, like 2024-07-12")
 def get_yes_no(message):
     # we keep asking the user to answer yes or no. and we return true for yes
     yes_lst = ["y", "yes"]
     no_lst = ["n", "no"]
-
     while True:
         answer = input(message + " (y/n): ").strip().lower()
         if answer in yes_lst:

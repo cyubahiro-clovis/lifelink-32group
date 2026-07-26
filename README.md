@@ -3,7 +3,7 @@
 A menu driven, command-line application built with python and MySQL by Group32, ALU BSE Year one, Trimester 2(PLP 2).
 
 ## The problem 
-Hospital and facility blood banks in many places still track blood units, expiry dates, and donors on the paper. This causes wastage (units expire unnoticed), slow responses in emergencies (staff search registers by hand to find compatible blood), and poor reporting. LifeLink digitized this facility level record keeping.
+Rwanda is known worldwide for its blood *delivery* network, where drones carry blood from national centres to hospitals. But delivery is only one part of the chain. Inside an individual hospital or health facility, the local blood bank still has to manage its own records: which units are on the shelf, which expire this week, which donors can be called, and which patient needs which blood type.
 
 ## features
 

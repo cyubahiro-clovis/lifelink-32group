@@ -1,14 +1,18 @@
 #!/usr/bin/python3
 """
-database.py: This Database layer for LifeLink.
+database.py - The database layer for LifeLink.
 
 Holds two classes:
   Database     - owns the SQLite file, gives connections, creates the tables.
-  BaseManager  - parent class that every feature manager inherits from,
+  BaseManager  - the parent class every feature manager inherits from,
                  so they all share the same database object.
 
 The tables match the architecture diagram in our PLP-1 document:
 donors | blood_units | blood_requests | issued_units (distributions) | staff
+
+The staff table also stores each user's ROLE, so the system knows who is
+allowed to do what: an administrator can approve requests and delete
+records, while a technician does the day-to-day data entry.
 """
 
 import os
@@ -19,6 +23,7 @@ class Database:
     """Owns the SQLite database file and the schema."""
 
     def __init__(self, db_name="lifelink.db"):
+
         here = os.path.dirname(os.path.abspath(__file__))
         self.db_path = os.path.join(here, db_name)
 
@@ -77,24 +82,51 @@ class Database:
                 FOREIGN KEY (unit_id) REFERENCES blood_units (unit_id)
             )
         """)
-
+.
         cur.execute("""
             CREATE TABLE IF NOT EXISTS staff (
                 staff_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 username TEXT NOT NULL UNIQUE,
-                password TEXT NOT NULL
+                password TEXT NOT NULL,
+                role TEXT NOT NULL DEFAULT 'technician'
             )
         """)
 
-        cur.execute("SELECT COUNT(*) FROM staff")
-        if cur.fetchone()[0] == 0:
-            cur.execute(
-                "INSERT INTO staff (username, password) VALUES (?, ?)",
-                ("admin", "blood2026"),
-            )
+        self._add_role_column_if_missing(cur)
+        self._create_default_accounts(cur)
 
         conn.commit()
         conn.close()
+
+    def _add_role_column_if_missing(self, cur):
+        """
+        If someone still has a database created before we added roles, add the
+        role column instead of failing. This keeps old databases working.
+        """
+        cur.execute("PRAGMA table_info(staff)")
+        columns = [row[1] for row in cur.fetchall()]
+        if "role" not in columns:
+            cur.execute(
+                "ALTER TABLE staff ADD COLUMN role TEXT NOT NULL "
+                "DEFAULT 'technician'"
+            )
+            cur.execute("UPDATE staff SET role = 'admin' WHERE username = 'admin'")
+
+    def _create_default_accounts(self, cur):
+        """Create the two demo accounts once: one administrator, one technician."""
+        accounts = [
+            ("admin", "blood2026", "admin"),
+            ("tech", "blood2026", "technician"),
+        ]
+        for username, password, role in accounts:
+            cur.execute(
+                "SELECT COUNT(*) FROM staff WHERE username = ?", (username,))
+            if cur.fetchone()[0] == 0:
+                cur.execute(
+                    "INSERT INTO staff (username, password, role) "
+                    "VALUES (?, ?, ?)",
+                    (username, password, role),
+                )
 
 
 class BaseManager:
@@ -111,4 +143,3 @@ class BaseManager:
 if __name__ == "__main__":
     Database().create_tables()
     print("Database ready.")
- 

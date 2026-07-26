@@ -32,7 +32,7 @@ python3 main.py
 | Username | Password | Role | Can do |
 |---|---|---|---|
 | `admin` | `blood2026` | administrator | everything, including approving requests, deleting donors and removing expired units |
-| `tech` | `blood2026` | technician | registers donors, records donations, creates requests, reads all reports — but cannot approve requests or delete records |
+| `tech` | `blood2026` | technician | registers donors, records donations, creates requests, reads all reports but cannot approve requests or delete records |
 
 The database file `lifelink.db` is created automatically on first run. To start from a clean database, delete `lifelink.db` and run `python3 seed_data.py` again.
 

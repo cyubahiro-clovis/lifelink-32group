@@ -14,7 +14,7 @@ import sqlite3
 from datetime import date
 
 from database import BaseManager
-from validators import get_nonempty, get_blood_type, get_int, get_choice
+from validators import get_name, get_blood_type, get_int, get_choice
 
 
 class RequestManager(BaseManager):
@@ -54,7 +54,7 @@ class RequestManager(BaseManager):
     def new_request(self):
         """Record a new patient request and immediately preview the matches."""
         print("\n-- New Blood Request --")
-        patient_name = get_nonempty("Patient's name: ")
+        patient_name = get_name("Patient's name: ")
         patient_blood_type = get_blood_type("Patient's blood type: ")
         units_needed = get_int("Units needed: ", minimum=1)
 

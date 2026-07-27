@@ -9,9 +9,9 @@ Rwanda is known worldwide for its blood *delivery* network, where drones carry b
 
 In many facilities this is still done on paper. The result is:
 
-- **Wastage** — units expire unnoticed in storage.
-- **Slow emergencies** — staff search paper registers by hand to find compatible blood, while every minute counts.
-- **Weak reporting** — no reliable picture of stock for planning donation campaigns.
+- **Wastage**: units expire unnoticed in storage.
+- **Slow emergencies**: staff search paper registers by hand to find compatible blood, while every minute counts.
+- **Weak reporting**: no reliable picture of stock for planning donation campaigns.
 
 **LifeLink digitises this facility-level record keeping.**
 
@@ -23,7 +23,7 @@ Requirements: **Python 3.6 or newer**. Nothing to install — we only use the st
 ```
 git clone https://github.com/cyubahiro-clovis/lifelink-32group.git
 cd lifelink-32group
-python3 seed_data.py      # optional: loads sample data for testing/demo
+python3 seed_data.py
 python3 main.py
 ```
 

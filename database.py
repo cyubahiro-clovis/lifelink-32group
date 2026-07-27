@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 """
-database.py - The database layer for LifeLink.
+database.py: The database layer for LifeLink.
+Owner: Clovis
 
 Holds two classes:
   Database     - owns the SQLite file, gives connections, creates the tables.

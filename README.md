@@ -95,7 +95,7 @@ LifeLinkApp  (main.py)
 | `inventory.py` | `InventoryManager` — units, stock, expiry | Christian |
 | `blood_requests.py` | `RequestManager` — requests, compatibility | Achol |
 | `reports.py` | `ReportManager` — the four reports | Nziza |
-| `alerts.py` | `AlertEngine` — low stock and startup dashboard | Nissi |
+| `alerts.py` | `AlertEngine` — low stock and startup dashboard | Clovis |
 | `validators.py` | Input validation helpers used by every module | Nissi |
 | `seed_data.py` | Sample data for testing and the demo | Nziza |
 

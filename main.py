@@ -3,6 +3,7 @@
 LifeLink: This is Blood Bank Inventory and Donor Management System
 
 This is the only file you run:   python3 main.py
+Owner: Clovis (login, menus, and integration).
 
 The LifeLinkApp class below builds one Database object and hands it to every
 manager, so the whole application shares one database connection setting.
@@ -35,7 +36,7 @@ class LifeLinkApp:
         self.alerts = AlertEngine(self.db)
         self.user = None
 
-    # Login
+
     def login(self):
         """Ask for staff credentials. Returns True when the login succeeds."""
         print("\n-- STAFF LOGIN --")

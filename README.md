@@ -16,7 +16,7 @@ In many facilities this is still done on paper. The result is:
 **LifeLink digitises this facility-level record keeping.**
 
 
-## Quick start
+## Quick start and what to use to run the demo
 
 Requirements: **Python 3.6 or newer**. Nothing to install — we only use the standard library (`sqlite3`, `datetime`, `os`, `sys`).
 
